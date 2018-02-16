@@ -1,0 +1,74 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Hello World</title>
+</head>
+<body>
+    <h2>Consumer</h2>
+
+    <div id="greeting"></div>
+    <div id="login" style="display: none">
+        <button id="#loginButton">Log in</button>
+    </div>
+    <div id="loggedInUser"></div>
+
+
+    <h3>Update name</h3>
+
+
+    <form id="update">
+        <label>Name: <input type="text" id="username" /></label>
+
+        <button>Do it</button>
+    </form>
+
+    <iframe src="http://account.local:3000/id.html?origin=http://consumer.local:4000" hidden="hidden"></iframe>
+
+    <script
+    src="http://code.jquery.com/jquery-3.3.1.js"
+    integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+    crossorigin="anonymous"></script>
+    <script>
+    function fetchUsername() {
+        jQuery.ajax("/users/me").then(data => {
+            $("#greeting").text("Hello " + data.name);        
+        });
+
+        jQuery.ajax("http://account.local:3000/users/me").then(data => {
+            console.log("account", data);
+        })
+    }
+
+    jQuery("#update").submit(e => {
+        e.preventDefault();
+        const data = { 
+            name: $("#username").val()
+        };
+        jQuery.ajax("/users/me", {
+            type: "POST", contentType: "application/json", data: JSON.stringify(data)
+        }).then(fetchUsername);
+    });
+
+    $("#login").click(e => {
+        e.preventDefault();
+        window.location = "http://account.local:3000/?redirect=" + encodeURI(window.location);
+    })
+
+    $(() => {
+        fetchUsername();
+    });
+
+    window.addEventListener("message", (e) => {
+        if (e.data.unauthorized) {
+            $("#login").show();
+        } else {
+            $("#login").hide();
+            $("#loggedInUser").text("Logged in as " + e.data.user);
+        }
+    });
+
+    </script>
+</body>
+</html>

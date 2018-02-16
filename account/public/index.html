@@ -1,0 +1,60 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Hello World</title>
+</head>
+<body>
+    <h2 id="greeting">Hello World</h2>
+
+    <h3>Update name</h3>
+
+    <form id="update">
+        <label>Name: <input type="text" id="username" /></label>
+
+        <button>Do it</button>
+    </form>
+
+    <script
+    src="http://code.jquery.com/jquery-3.3.1.js"
+    integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+    crossorigin="anonymous"></script>
+    <script>
+    function getParameterByName(name, url) {
+       if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    function fetchUsername() {
+        jQuery.ajax("/users/me").then(data => {
+            $("#greeting").text("Hello " + data.name);        
+        });
+    }
+
+    $("#update").submit(e => {
+        e.preventDefault();
+        const data = { 
+            name: $("#username").val()
+        };
+        jQuery.ajax("/users/me", {
+            type: "POST", contentType: "application/json", data: JSON.stringify(data)
+        }).then(() => {
+            const redirect = getParameterByName("redirect");
+            if (redirect) {
+                window.location = redirect;
+            } else {
+                fetchUsername();
+            }
+        });
+    })
+
+    fetchUsername();
+    </script>
+</body>
+</html>
