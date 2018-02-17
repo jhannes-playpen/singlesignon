@@ -12,7 +12,11 @@
 
     <div id="greeting"></div>
     <div id="login" style="display: none">
-        <button id="#loginButton">Log in</button>
+        <form method="get" action="http://account.local:3000">
+            <input type="hidden" name="redirect_uri" value="http://consumer.local:4000/token" />
+            <input type="hidden" name="client_id" value="c622ed63-30b6-4a77-b6af-71fefa4b5f64" />
+            <button>Log in</button>
+        </form>
     </div>
 
     <h3>Update name</h3>
@@ -26,10 +30,6 @@
     integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
     crossorigin="anonymous"></script>
     <script>
-    $("#login").click(e => {
-        e.preventDefault();
-        window.location = "http://account.local:3000/?redirect=" + encodeURI(window.location);
-    })
 
     window.addEventListener("message", (e) => {
         if (e.data.unauthorized) {

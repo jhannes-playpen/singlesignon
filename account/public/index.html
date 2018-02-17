@@ -31,20 +31,13 @@
         <button>Log out</button>
     </form>
 
+    <script src="https://cdn.rawgit.com/khalidsalomao/simple-query-string/22cc5bbe/src/simplequerystring.min.js"></script>
     <script
     src="http://code.jquery.com/jquery-3.3.1.js"
     integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
     crossorigin="anonymous"></script>
     <script>
-    function getParameterByName(name, url) {
-       if (!url) url = window.location.href;
-        name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
-    }
+    const qs = simpleQueryString;
 
     function fetchUsername() {
         jQuery.ajax("/users/me").then(data => {
@@ -67,15 +60,18 @@
     $("#login").submit(e => {
         e.preventDefault();
         const data = { 
-            username: $("#username").val()
+            username: $("#username").val(),
+            client_id: qs.parse(window.location.href)["client_id"],
+            redirect_uri: qs.parse(window.location.href)["redirect_uri"],
         };
         jQuery.ajax("/loginSession", {
             type: "POST", contentType: "application/json", data: JSON.stringify(data)
-        }).then(() => {
-            const redirect = getParameterByName("redirect");
-            localStorage.setItem("logged_in", "true");
+        }).then(res => {
+            const {accessCode, user} = res;
+            localStorage.setItem("logged_in", user);
+            const redirect = qs.parse(window.location.href)["redirect_uri"];
             if (redirect) {
-                window.location = redirect;
+                window.location = redirect + "?" + qs.stringify({accessCode});
             } else {
                 $("#login").trigger("reset");
                 fetchUsername();
