@@ -34,9 +34,10 @@
     window.addEventListener("message", (e) => {
         if (e.data.unauthorized) {
             $("#login").show();
+            $("#loggedInUser").hide();
         } else {
             $("#login").hide();
-            $("#loggedInUser").text("Logged in as " + e.data.user.fullname);
+            $("#loggedInUser").show().text("Logged in as " + e.data.user.fullname);
         }
     });
     </script>

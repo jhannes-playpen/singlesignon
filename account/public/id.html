@@ -21,21 +21,35 @@
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
-    const origin = getParameterByName("origin");
+    function postParentMessage(message) {
+        const origin = getParameterByName("origin");
+        if (origin) {
+            parent.postMessage(message, origin);
+        } else {
+            console.log("Would send to parent", message);
+        }
+    }
+
     function fetchUsername() {
         jQuery.ajax("/users/me").then(data => {
-            parent.postMessage({user: data}, origin);
+            postParentMessage({user: data});
         }).fail(error => {
             if (error.status == 401) {
-                parent.postMessage({unauthorized: true}, origin);
+                postParentMessage({unauthorized: true});
             } else {
-                parent.postMessage({error: error}, origin);
+                postParentMessage({error: error});
             }
         });
     }
 
     $(() => {
         fetchUsername();
+    });
+
+    window.addEventListener("storage", e => {
+        if (e.key === "logged_in") {
+            fetchUsername();
+        }
     });
     </script>
 </body>

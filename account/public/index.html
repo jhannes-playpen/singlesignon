@@ -73,6 +73,7 @@
             type: "POST", contentType: "application/json", data: JSON.stringify(data)
         }).then(() => {
             const redirect = getParameterByName("redirect");
+            localStorage.setItem("logged_in", "true");
             if (redirect) {
                 window.location = redirect;
             } else {
@@ -87,6 +88,7 @@
         jQuery.ajax("/loginSession", {
             type: "DELETE"
         }).then(() => {
+            localStorage.setItem("logged_in", "false");
             fetchUsername();
         });
     });
