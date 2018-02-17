@@ -11,6 +11,11 @@
     integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
     crossorigin="anonymous"></script>
     <script>
+    const VALID_ORIGINS = {
+        "consumer": "http://consumer.local:4000",
+        "other": "http://other.local:4001",
+    };
+
     function getParameterByName(name, url) {
        if (!url) url = window.location.href;
         name = name.replace(/[\[\]]/g, "\\$&");
@@ -22,7 +27,7 @@
     }
 
     function postParentMessage(message) {
-        const origin = getParameterByName("origin");
+        const origin = VALID_ORIGINS[getParameterByName("origin")];
         if (origin) {
             parent.postMessage(message, origin);
         } else {
