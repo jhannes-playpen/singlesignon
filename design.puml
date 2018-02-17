@@ -1,0 +1,86 @@
+title "Simple single signon service - design"
+
+actor User
+
+box "App1"
+    boundary Frontend1
+    entity Backend1
+end box
+
+box "App2"
+    boundary Frontend2
+    entity Backend2
+end box
+
+box "Signon"
+    boundary Loginpage
+    boundary SsoFrame
+    entity Backend
+end box
+
+User -> Frontend1 ++: Hello
+Frontend1 -> SsoFrame: Include hidden iframe
+Frontend1 <- SsoFrame: postMessage(unknown user)
+User <-- Frontend1 --: Hello, Stranger
+...
+User -> Frontend1: Login
+User <-- Frontend1: Redirect to Loginpage\nwith frontend1 client_id, success_url
+User -> Loginpage ++: Redirect
+User <-- Loginpage --: Show login page
+User -> Loginpage ++: Username, password
+Loginpage -> Backend ++: Username, password
+Backend -> Backend: Verify user identity\nusing costly hashing function
+Backend -> Backend: Verify client_id exists, success_url in whitelist
+Loginpage <-- Backend --: Username, fullname, \naccess code for Frontend1
+Loginpage -> SsoFrame: Set username, \nfullname in cookie
+User <-- Loginpage --: Redirect to success_url
+User -> Frontend1 ++: success_url + access code
+Frontend1 -> Backend1 ++: fetch token for access code
+Backend1 -> Backend ++: Get token for access code, client_secret
+Backend -> Backend: Verify client secret for access code client
+Backend -> Backend: Generate access_token
+Backend1 <-- Backend --: Access_token
+Backend1 -> Backend1: Store access token \nin user session
+Frontend1 <-- Backend1 --: Ok
+Frontend1 -> Backend1 ++: Fetch username
+Backend1 -> Backend ++: Get user profile with access_token
+Backend -> Backend: Verify access_token
+Backend1 <-- Backend --: Profile
+Frontend1 <-- Backend1 --: username
+User <-- Frontend1--: Greetings, professor Falken
+...
+newpage
+User -> Frontend2 ++: Hello
+Frontend2 -> SsoFrame: Include hidden iframe
+SsoFrame -> SsoFrame: Get username\nfrom cookie
+Frontend2 <- SsoFrame: postMessage(user)
+User <-- Frontend2 --: Welcome, professor Falken
+...
+User -> Frontend2 ++: Show profile details
+User <-- Frontend1: Redirect to Loginpage\nwith frontend2 client_id, success_url
+User -> Loginpage ++: Redirect
+alt User has not yet consented to Frontend2 getting details
+    User <- Loginpage: Can App2 get your details?
+    User -> Loginpage: Ok
+end if
+Loginpage -> Backend ++: Issue token to frontend2 client_id
+Backend -> Backend: Verify client_id exists, success_url in whitelist
+Loginpage <-- Backend --: access code
+User <-- LoginPage --: Redirect to success_url with access code
+User -> Frontend2 ++: Success_url with access code
+Frontend2 -> Backend2 ++: access code
+Backend2 -> Backend ++: access code, client secret
+Backend -> Backend: Verify client secret for access code client
+Backend -> Backend: Generate access_token
+Backend2 <-- Backend --: Access_token
+Backend2 -> Backend2: Store access token \nin user session
+Frontend2 <-- Backend2 --: Ok
+Frontend2 -> Backend2 ++: Fetch full profile
+Backend2 -> Backend ++: Get user profile with access_token
+Backend -> Backend: Verify access_token
+Backend2 <-- Backend --: Profile
+Frontend2 <-- Backend2 --: Profile
+User <-- Frontend2--: Show full profile
+
+
+
