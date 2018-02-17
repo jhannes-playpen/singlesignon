@@ -10,22 +10,8 @@ app.use(express.static(__dirname + '/public'));
 app.use(session({secret: "sdgknsdlgndg", cookie: {}, resave: false, saveUninitialized: false}));
 
 
-app.get('/users/me', (req, resp) => {
-    if (!req.session.user) {
-        resp.send({name: "Stranger"});
-    } else {
-        resp.send(req.session.user);        
-    }
-});
+const port = parseInt(process.argv[2] || 4000);
 
-app.post('/users/me', (req, resp) => {
-    if (!req.session.user) {
-        req.session.user = {};
-    }
-    req.session.user.name = req.body.name;
-    resp.sendStatus(200);
-});
-
-app.listen(4000, function() {
-    console.log("Server started");
+app.listen(port, function() {
+    console.log("Server started on port " + port);
 });
