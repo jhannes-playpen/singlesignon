@@ -33,6 +33,34 @@ app.get("/token", (req, res) => {
     });
 });
 
+app.get("/api/consumer/me", (req, res) => {
+    const {access_token} = req.session;
+    axios.get("http://account.local:3000/users/me", {
+        headers: { "Authorization": `Bearer ${access_token}` }
+    }).then(resp => {
+        res.send(resp.data);
+    }).catch(err => {
+        console.error(err);
+        res.sendStatus(500);
+    });
+});
+
+app.post("/api/consumer/me", (req, res) => {
+    const {access_token} = req.session;
+    axios.put("http://account.local:3000/users/me", {
+        fullname: req.body.fullname
+    }, {
+        headers: { "Authorization": `Bearer ${access_token}` },
+    }).then(resp => {
+        res.send(resp.data);
+    }).catch(err => {
+        console.error(err);
+        res.sendStatus(500);
+    });
+});
+
+
+
 const port = parseInt(process.argv[2] || 4000);
 
 app.listen(port, function() {

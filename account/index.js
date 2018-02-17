@@ -12,6 +12,9 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 app.use(session({secret: "sdgknsdlgndg", cookie: {}, resave: false, saveUninitialized: false}));
 
+const allUsers = {};
+
+
 function encode(object) {
     // TODO: Run through crypto!
     return new Buffer(JSON.stringify(object)).toString('base64');
@@ -27,20 +30,37 @@ app.get('/users/me', (req, resp) => {
     resp.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     resp.header('Access-Control-Allow-Headers', 'Content-Type');
 
-    if (!req.session.user) {
-        resp.sendStatus(401);
+    const authorization = req.header("Authorization");
+
+    if (authorization && authorization.startsWith("Bearer ")) {
+        const access_token = decode(authorization.substr("Bearer ".length));
+        const {username} = access_token;
+        resp.send(allUsers[username]);
+    } else if (req.session.username) {
+        resp.send(allUsers[req.session.username]);
     } else {
-        resp.send(req.session.user);        
+        resp.sendStatus(401);
     }
 });
 
 app.put('/users/me', (req, resp) => {
-    req.session.user.fullname = req.body.fullname;
-    resp.sendStatus(200);
+    const authorization = req.header("Authorization");
+
+    if (authorization && authorization.startsWith("Bearer ")) {
+        const access_token = decode(authorization.substr("Bearer ".length));
+        const {username} = access_token;
+        allUsers[username].fullname = req.body.fullname;
+
+        resp.sendStatus(200);    
+    } else {
+        const {username} = req.session;
+        allUsers[username].fullname = req.body.fullname;
+        resp.sendStatus(200);    
+    }
 });
 
 app.post('/loginSession', (req, resp) => {
-    const {client_id, redirect_uri} = req.body;
+    const {client_id, redirect_uri, username} = req.body;
 
     let accessCode = null;
     if (client_id) {
@@ -54,13 +74,11 @@ app.post('/loginSession', (req, resp) => {
         accessCode = encode({username: req.body.username, client_id});
     }
 
-    let {user} = req.session;
-    if (!user) {
-        user = req.session.user = {};
+    req.session.username = username;
+    if (!allUsers[username]) {
+        allUsers[username] = { username, fullname: username.toUpperCase() };
     }
-    user.username = req.body.username;
-    user.fullname = req.session.user.fullname || req.session.user.username.toUpperCase();
-    resp.send({accessCode, user});
+    resp.send({accessCode, user: allUsers[username]});
 });
 
 app.post("/oauth2/token", (req, res) => {
