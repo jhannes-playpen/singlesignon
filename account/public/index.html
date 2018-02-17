@@ -6,14 +6,29 @@
     <title>Hello World</title>
 </head>
 <body>
-    <h2 id="greeting">Hello World</h2>
+    <h2 id="greeting">My app</h2>
 
-    <h3>Update name</h3>
 
-    <form id="update">
-        <label>Name: <input type="text" id="username" /></label>
+    <form id="login" style="display: none">
+        <h3>Log in</h3>
 
-        <button>Do it</button>
+        <label>Username: <input type="text" id="username" /></label>
+
+        <button>Log in</button>
+    </form>
+
+    <form id="editProfile" style="display: none">
+        <h3>Update profile</h3>
+
+        <label>Full name: <input type="text" id="fullname" /></label>
+
+        <button>Update</button>
+    </form>
+
+    <form id="logout" style="display: none">
+        <h3>Logout</h3>
+
+        <button>Log out</button>
     </form>
 
     <script
@@ -33,26 +48,59 @@
 
     function fetchUsername() {
         jQuery.ajax("/users/me").then(data => {
-            $("#greeting").text("Hello " + data.name);        
+            $("#login").hide();
+            $("#greeting").text("Hello " + data.username);
+            $("#fullname").val(data.fullname);
+            $("#logout").show();
+            $("#editProfile").show();
+        }).fail(err => {
+            if (err.status == 401) {
+                $("#login").show();
+                $("#logout").hide();
+                $("#editProfile").hide();
+            } else {
+                console.error(err);
+            }
         });
     }
 
-    $("#update").submit(e => {
+    $("#login").submit(e => {
         e.preventDefault();
         const data = { 
-            name: $("#username").val()
+            username: $("#username").val()
         };
-        jQuery.ajax("/users/me", {
+        jQuery.ajax("/loginSession", {
             type: "POST", contentType: "application/json", data: JSON.stringify(data)
         }).then(() => {
             const redirect = getParameterByName("redirect");
             if (redirect) {
                 window.location = redirect;
             } else {
+                $("#login").trigger("reset");
                 fetchUsername();
             }
         });
     })
+
+    $("#logout").submit(e => {
+        e.preventDefault();
+        jQuery.ajax("/loginSession", {
+            type: "DELETE"
+        }).then(() => {
+            fetchUsername();
+        });
+    });
+
+    $("#editProfile").submit(e => {
+        e.preventDefault();
+        jQuery.ajax("/users/me", {
+            type: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify({fullname: $("#fullname").val() })
+        }).then(() => {
+            fetchUsername();
+        });
+    });
 
     fetchUsername();
     </script>

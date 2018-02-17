@@ -23,11 +23,22 @@ app.get('/users/me', (req, resp) => {
     }
 });
 
-app.post('/users/me', (req, resp) => {
+app.put('/users/me', (req, resp) => {
+    req.session.user.fullname = req.body.fullname;
+    resp.sendStatus(200);
+});
+
+app.post('/loginSession', (req, resp) => {
     if (!req.session.user) {
         req.session.user = {};
     }
-    req.session.user.name = req.body.name;
+    req.session.user.username = req.body.username;
+    req.session.user.fullname = req.session.user.fullname || req.session.user.username.toUpperCase();
+    resp.sendStatus(200);
+});
+
+app.delete("/loginSession", (req, resp) => {
+    req.session.destroy();
     resp.sendStatus(200);
 });
 

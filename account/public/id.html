@@ -24,9 +24,7 @@
     const origin = getParameterByName("origin");
     function fetchUsername() {
         jQuery.ajax("/users/me").then(data => {
-            $("#user").text(data.name);
-
-            parent.postMessage({foo: "bar", user: data.name}, origin);
+            parent.postMessage({user: data}, origin);
         }).fail(error => {
             if (error.status == 401) {
                 parent.postMessage({unauthorized: true}, origin);
