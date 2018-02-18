@@ -1,8 +1,6 @@
-
-
 const express = require('express');
 const bodyParser = require('body-parser');
-const session = require('express-session')
+const session = require('express-session');
 
 const clientRepository = require("./clientRepository");
 
@@ -24,6 +22,16 @@ function decode(cyphertext) {
     // TODO: Run through crypto!
     return JSON.parse(Buffer.from(cyphertext, "base64"));
 }
+
+app.get('/config.js', (req, res) => {
+    const config = {
+        ssoClientOrigins: clientRepository.getOrigins()
+    };
+
+    res.setHeader('content-type', 'text/javascript');
+    res.write("const config = " + JSON.stringify(config) + ";");
+    res.end();    
+})
 
 app.get('/users/me', (req, resp) => {
     resp.header('Access-Control-Allow-Origin', '*');

@@ -18,8 +18,9 @@
         <button>Update</button>
     </form>
 
-    <iframe src="http://account.local:3000/id.html?origin=consumer" hidden="hidden"></iframe>
+    <iframe id="ssoFrame" hidden="hidden"></iframe>
 
+    <script src="config.js"></script>
     <script
     src="http://code.jquery.com/jquery-3.3.1.js"
     integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
@@ -38,6 +39,9 @@
         jQuery.getJSON("/api/consumer/me").then(user => {
             $("#fullname").val(user.fullname);
         });
+
+        // what if this (logically) returns 401?
+        // Service to service API calls
     }
 
     $("#editProfile").submit(e => {
@@ -53,6 +57,7 @@
     });
 
     $(() => {
+        $("#ssoFrame").attr("src", config.sso_frame_url);
         fetchProfile();
     });
     </script>

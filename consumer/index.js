@@ -11,14 +11,20 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + '/public'));
 app.use(session({secret: "sdgknsdlgndg", cookie: {}, resave: false, saveUninitialized: false}));
 
-
+const login_url = "http://account.local:3000";
 const redirect_uri = "http://consumer.local:4000/token";
 const client_id = "c622ed63-30b6-4a77-b6af-71fefa4b5f64";
 const client_secret = "a0071e49-d6ef-4748-8abd-bf2fd45c6ab5";
+const sso_frame_url = `${login_url}/id.html?origin=consumer`;
 
+app.get("/config.js", (req, res) => {
+    res.setHeader('content-type', 'text/javascript');
+    res.write("const config = " + JSON.stringify({login_url, client_id, redirect_uri, sso_frame_url}) + ";");
+    res.end();
+});
 
 app.get("/token", (req, res) => {
-    axios.post("http://account.local:3000/oauth2/token", {
+    axios.post(login_url + "/oauth2/token", {
         grant_type: "authorization_code",
         redirect_uri,
         code: req.query.accessCode,
@@ -35,7 +41,7 @@ app.get("/token", (req, res) => {
 
 app.get("/api/consumer/me", (req, res) => {
     const {access_token} = req.session;
-    axios.get("http://account.local:3000/users/me", {
+    axios.get(login_url + "/users/me", {
         headers: { "Authorization": `Bearer ${access_token}` }
     }).then(resp => {
         res.send(resp.data);
@@ -47,7 +53,7 @@ app.get("/api/consumer/me", (req, res) => {
 
 app.post("/api/consumer/me", (req, res) => {
     const {access_token} = req.session;
-    axios.put("http://account.local:3000/users/me", {
+    axios.put(login_url + "/users/me", {
         fullname: req.body.fullname
     }, {
         headers: { "Authorization": `Bearer ${access_token}` },
@@ -58,7 +64,6 @@ app.post("/api/consumer/me", (req, res) => {
         res.sendStatus(500);
     });
 });
-
 
 
 const port = parseInt(process.argv[2] || 4000);

@@ -12,9 +12,9 @@
 
     <div id="greeting"></div>
     <div id="login" style="display: none">
-        <form method="get" action="http://account.local:3000">
-            <input type="hidden" name="redirect_uri" value="http://consumer.local:4000/token" />
-            <input type="hidden" name="client_id" value="c622ed63-30b6-4a77-b6af-71fefa4b5f64" />
+        <form method="get" id="loginForm">
+            <input type="hidden" name="redirect_uri" id="redirect_uri" />
+            <input type="hidden" name="client_id" id="client_id" />
             <button>Log in</button>
         </form>
     </div>
@@ -23,8 +23,9 @@
 
     <div><a href="/update.html">Update profile</a></div>
 
-    <iframe src="http://account.local:3000/id.html?origin=consumer" hidden="hidden"></iframe>
+    <iframe id="ssoFrame" hidden="hidden"></iframe>
 
+    <script src="config.js"></script>
     <script
     src="http://code.jquery.com/jquery-3.3.1.js"
     integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
@@ -39,6 +40,13 @@
             $("#login").hide();
             $("#loggedInUser").show().text("Logged in as " + e.data.user.fullname);
         }
+    });
+
+    $(() => {
+        $("#client_id").val(config.client_id);
+        $("#redirect_uri").val(config.redirect_uri);
+        $("#loginForm").attr("action", config.login_url);
+        $("#ssoFrame").attr("src", config.sso_frame_url);
     });
     </script>
 </body>

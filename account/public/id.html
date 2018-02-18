@@ -6,30 +6,18 @@
     <title>Identify</title>
 </head>
 <body>
-    <script
-    src="http://code.jquery.com/jquery-3.3.1.js"
-    integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
-    crossorigin="anonymous"></script>
+    <script src="http://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdn.rawgit.com/khalidsalomao/simple-query-string/22cc5bbe/src/simplequerystring.min.js"></script>
+    <script src="/config.js"></script>
     <script>
-    const VALID_ORIGINS = {
-        "consumer": "http://consumer.local:4000",
-        "other": "http://other.local:4001",
-    };
-
-    function getParameterByName(name, url) {
-       if (!url) url = window.location.href;
-        name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
-    }
+    const qs = simpleQueryString;
 
     function postParentMessage(message) {
-        const origin = VALID_ORIGINS[getParameterByName("origin")];
+        console.log("Post parent message");
+        const origin = qs.parse(window.location.href)["origin"];
+        const targetOrigin = config.ssoClientOrigins[origin];
         if (origin) {
-            parent.postMessage(message, origin);
+            parent.postMessage(message, targetOrigin);
         } else {
             console.log("Would send to parent", message);
         }
