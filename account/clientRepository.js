@@ -12,6 +12,10 @@ const CLIENTS = {
     "87aeff1b-dd90-4ff6-929b-aa32220b3f9b": {
         name: "other",
         ssoOrigin: "http://other.local:4001"
+    },
+    "96c9842a-78b8-43e8-bba8-11b9ebcd5660": {
+        name: "master",
+        ssoOrigin: "http://account.local:3000"
     }
 };
 

@@ -35,3 +35,17 @@ The single sign-on is designed through having a `<iframe hidden=true href="http:
 When the user logs in or out at http://account.local:3000, the page updates `localStorage`. The `id.html` frame listens to local storage events and updates any parent page with the new login status, which means that all current windows are automatically logged in or out instantanously.
 
 The `id.html` page has a whitelist of SSO partners to avoid leaking information through phishing attacks.
+
+TODO
+----
+
+* Add configurable (30 second) expiry to code
+* Invalidate server side session when id.html reports as logged out (bug: /update.html will fetch after signout)
+
+* Single Sign OUT: Invalidate issued access_tokens (requires shared state!) - all access_tokens should reference same underlying session
+* Add 15 minute session timer - requires all access_tokens in same session to be associated
+* Automated tests (what framework to use?)
+* Refactor and increase validation code
+* Reduce use of session - encrypt cookie
+* Encrypt code and access_token
+* Use a real user database (Mongo?) with hashed passwords

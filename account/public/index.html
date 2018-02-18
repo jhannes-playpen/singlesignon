@@ -33,6 +33,7 @@
         <button>Log out</button>
     </form>
 
+    <iframe src="/id.html?origin=master" hidden="true"></iframe>
     <script src="https://cdn.rawgit.com/khalidsalomao/simple-query-string/22cc5bbe/src/simplequerystring.min.js"></script>
     <script
     src="http://code.jquery.com/jquery-3.3.1.js"
@@ -41,23 +42,20 @@
     <script>
     const qs = simpleQueryString;
 
-    function fetchUsername() {
-        jQuery.ajax("/users/me").then(data => {
+    window.addEventListener("message", e => {
+        if (e.data.unauthorized) {
+            $("#login").show();
+            $("#logout").hide();
+            $("#editProfile").hide();
+        } else {
             $("#login").hide();
-            $("#greeting").text("Hello " + data.username);
-            $("#fullname").val(data.fullname);
+            $("#greeting").text("Hello " + e.data.user.username);
+            $("#fullname").val(e.data.user.fullname);
             $("#logout").show();
             $("#editProfile").show();
-        }).fail(err => {
-            if (err.status == 401) {
-                $("#login").show();
-                $("#logout").hide();
-                $("#editProfile").hide();
-            } else {
-                console.error(err);
-            }
-        });
-    }
+        }
+    });
+
 
     $("#login").submit(e => {
         e.preventDefault();
@@ -71,13 +69,10 @@
             type: "POST", contentType: "application/json", data: JSON.stringify(data)
         }).then(res => {
             const {code, user, state} = res;
-            localStorage.setItem("logged_in", user);
+            localStorage.setItem("logged_in", user); // This triggers update of ui via id.html
             const redirect = qs.parse(window.location.href)["redirect_uri"];
             if (redirect) {
                 window.location = redirect + "?" + qs.stringify({code, state});
-            } else {
-                $("#login").trigger("reset");
-                fetchUsername();
             }
         });
     })
@@ -88,7 +83,7 @@
             type: "DELETE"
         }).then(() => {
             localStorage.setItem("logged_in", "false");
-            fetchUsername();
+            // This triggers update of ui via id.html
         });
     });
 
@@ -102,8 +97,6 @@
             fetchUsername();
         });
     });
-
-    fetchUsername();
     </script>
 </body>
 </html>

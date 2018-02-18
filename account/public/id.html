@@ -13,11 +13,14 @@
     const qs = simpleQueryString;
 
     function postParentMessage(message) {
-        console.log("Post parent message");
         const origin = qs.parse(window.location.href)["origin"];
-        const targetOrigin = config.ssoClientOrigins[origin];
         if (origin) {
-            parent.postMessage(message, targetOrigin);
+            const targetOrigin = config.ssoClientOrigins[origin];
+            if (targetOrigin) {
+                parent.postMessage(message, targetOrigin);
+            } else {
+                console.warn("Invalid origin", origin);
+            }
         } else {
             console.log("Would send to parent", message);
         }
