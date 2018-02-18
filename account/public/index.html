@@ -64,16 +64,17 @@
         const data = { 
             username: $("#username").val(),
             client_id: qs.parse(window.location.href)["client_id"],
+            state: qs.parse(window.location.href)["state"],
             redirect_uri: qs.parse(window.location.href)["redirect_uri"],
         };
         jQuery.ajax("/loginSession", {
             type: "POST", contentType: "application/json", data: JSON.stringify(data)
         }).then(res => {
-            const {code, user} = res;
+            const {code, user, state} = res;
             localStorage.setItem("logged_in", user);
             const redirect = qs.parse(window.location.href)["redirect_uri"];
             if (redirect) {
-                window.location = redirect + "?" + qs.stringify({code});
+                window.location = redirect + "?" + qs.stringify({code, state});
             } else {
                 $("#login").trigger("reset");
                 fetchUsername();

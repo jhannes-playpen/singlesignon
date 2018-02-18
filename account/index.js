@@ -70,7 +70,7 @@ app.put('/users/me', (req, resp) => {
 });
 
 app.post('/loginSession', (req, resp) => {
-    const {client_id, redirect_uri, username} = req.body;
+    const {client_id, redirect_uri, username, state} = req.body;
 
     let code = null;
     if (client_id) {
@@ -88,7 +88,7 @@ app.post('/loginSession', (req, resp) => {
     if (!allUsers[username]) {
         allUsers[username] = { username, fullname: username.toUpperCase() };
     }
-    resp.send({code, user: allUsers[username]});
+    resp.send({code, state, user: allUsers[username]});
 });
 
 app.get("/oauth2/login", (req, res) => {

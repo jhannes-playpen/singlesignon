@@ -41,6 +41,10 @@ app.get("/login", (req, res) => {
 
 app.get("/token", (req, res) => {
     // TODO: Verify req.query.state with req.cookie.state
+    if (req.query.state !== req.cookies.oauth2_state) {
+        return res.status(400).send("State mismatch");
+    }
+
     const redirect = req.cookies.redirect_after_login || "/";
     axios.post(login_url + "/oauth2/token", {
         grant_type: "authorization_code",
@@ -50,6 +54,7 @@ app.get("/token", (req, res) => {
         client_secret
     }).then(resp => {
         req.session.access_token = resp.data.access_token;
+        res.clearCookie('oauth2_state');
         res.redirect(redirect);
     }).catch(err => {
         console.error(err);
