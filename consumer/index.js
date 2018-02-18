@@ -39,8 +39,12 @@ app.get("/login", (req, res) => {
     res.redirect(login_url + "/oauth2/login?" + qs.stringify({redirect_uri, client_id, state}));
 });
 
+app.post("/logout", (req, res) => {
+    req.session.destroy();
+    res.sendStatus(200);
+});
+
 app.get("/token", (req, res) => {
-    // TODO: Verify req.query.state with req.cookie.state
     if (req.query.state !== req.cookies.oauth2_state) {
         return res.status(400).send("State mismatch");
     }
@@ -55,6 +59,7 @@ app.get("/token", (req, res) => {
     }).then(resp => {
         req.session.access_token = resp.data.access_token;
         res.clearCookie('oauth2_state');
+        res.clearCookie('redirect_after_login');
         res.redirect(redirect);
     }).catch(err => {
         console.error(err);

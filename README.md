@@ -39,8 +39,6 @@ The `id.html` page has a whitelist of SSO partners to avoid leaking information 
 TODO
 ----
 
-* Add configurable (30 second) expiry to code
-* Invalidate server side session when id.html reports as logged out (bug: /update.html will fetch after signout)
 
 * Single Sign OUT: Invalidate issued access_tokens (requires shared state!) - all access_tokens should reference same underlying session
 * Add 15 minute session timer - requires all access_tokens in same session to be associated

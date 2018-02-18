@@ -28,7 +28,9 @@
     <script>
     window.addEventListener("message", (e) => {
         if (e.data.unauthorized) {
+            console.log("unauthorized");
             $("#login").show();
+            jQuery.ajax("/logout", { type: 'POST' });
         } else {
             $("#login").hide();
             $("#loggedInUser").text("Logged in as " + e.data.user.fullname);

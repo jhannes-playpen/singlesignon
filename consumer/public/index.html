@@ -36,6 +36,7 @@
         if (e.data.unauthorized) {
             $("#login").show();
             $("#loggedInUser").hide();
+            jQuery.ajax("/logout", { type: 'POST' });
         } else {
             $("#login").hide();
             $("#loggedInUser").show().text("Logged in as " + e.data.user.fullname);
