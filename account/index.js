@@ -1,5 +1,7 @@
 const clientRepository = require("./clientRepository");
 
+const codeExpirySeconds = 10;
+
 const qs = require("qs");
 
 const express = require('express');
@@ -81,7 +83,7 @@ app.post('/loginSession', (req, resp) => {
         if (client.redirectUris.indexOf(redirect_uri) === -1) {
             return resp.status(400).send("Unknown redirect_uri");
         }
-        code = encode({username: req.body.username, client_id});
+        code = encode({username: req.body.username, client_id, expire_time: new Date().getTime() + codeExpirySeconds*1000});
     }
 
     req.session.username = username;
@@ -103,7 +105,7 @@ app.get("/oauth2/login", (req, res) => {
     }
 
     if (req.session.username) {
-        const code = encode({username: req.session.username, client_id});
+        const code = encode({username: req.session.username, client_id, expire_time: new Date().getTime() + codeExpirySeconds*1000});
         return res.redirect(redirect_uri + "?" + qs.stringify({code, state}))
     } else {
         return res.redirect("/?" + qs.stringify({client_id, redirect_uri, state}));
@@ -126,6 +128,9 @@ app.post("/oauth2/token", (req, res) => {
     const codeValues = decode(code);
     if (codeValues.client_id !== client_id) {
         return res.status(400).send("Code issues to different client");        
+    }
+    if (new Date().getTime() > codeValues.expire_time) {
+        return res.status(400).send("Code expired");
     }
 
     const expires_in = 3600;
