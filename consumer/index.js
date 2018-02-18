@@ -1,13 +1,22 @@
+const qs = require("qs");
+const uuid = require('uuid');
+
 const express = require('express');
 const bodyParser = require('body-parser');
-const session = require('express-session')
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 
 const axios = require("axios");
 
 const app = express();
 
+// TODO
+// 401 - missing access token
+// 401 - session expired/invalid
+
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(express.static(__dirname + '/public'));
 app.use(session({secret: "sdgknsdlgndg", cookie: {}, resave: false, saveUninitialized: false}));
 
@@ -23,16 +32,25 @@ app.get("/config.js", (req, res) => {
     res.end();
 });
 
+app.get("/login", (req, res) => {
+    const state = uuid();
+    res.cookie("redirect_after_login", req.get("Referrer"));
+    res.cookie("oauth2_state", state);
+    res.redirect(login_url + "/oauth2/login?" + qs.stringify({redirect_uri, client_id, state}));
+});
+
 app.get("/token", (req, res) => {
+    // TODO: Verify req.query.state with req.cookie.state
+    const redirect = req.cookies.redirect_after_login || "/";
     axios.post(login_url + "/oauth2/token", {
         grant_type: "authorization_code",
         redirect_uri,
-        code: req.query.accessCode,
+        code: req.query.code,
         client_id,
         client_secret
     }).then(resp => {
         req.session.access_token = resp.data.access_token;
-        res.redirect("/");
+        res.redirect(redirect);
     }).catch(err => {
         console.error(err);
         res.sendStatus(500);
@@ -41,6 +59,11 @@ app.get("/token", (req, res) => {
 
 app.get("/api/consumer/me", (req, res) => {
     const {access_token} = req.session;
+
+    if (!access_token) {
+        return res.sendStatus(401);
+    }
+
     axios.get(login_url + "/users/me", {
         headers: { "Authorization": `Bearer ${access_token}` }
     }).then(resp => {
@@ -53,6 +76,11 @@ app.get("/api/consumer/me", (req, res) => {
 
 app.post("/api/consumer/me", (req, res) => {
     const {access_token} = req.session;
+
+    if (!access_token) {
+        return res.sendStatus(401);
+    }
+
     axios.put(login_url + "/users/me", {
         fullname: req.body.fullname
     }, {

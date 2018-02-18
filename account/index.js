@@ -1,8 +1,10 @@
+const clientRepository = require("./clientRepository");
+
+const qs = require("qs");
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-
-const clientRepository = require("./clientRepository");
 
 const app = express();
 
@@ -70,7 +72,7 @@ app.put('/users/me', (req, resp) => {
 app.post('/loginSession', (req, resp) => {
     const {client_id, redirect_uri, username} = req.body;
 
-    let accessCode = null;
+    let code = null;
     if (client_id) {
         const client = clientRepository.get(client_id);
         if (!client) {
@@ -79,14 +81,33 @@ app.post('/loginSession', (req, resp) => {
         if (client.redirectUris.indexOf(redirect_uri) === -1) {
             return resp.status(400).send("Unknown redirect_uri");
         }
-        accessCode = encode({username: req.body.username, client_id});
+        code = encode({username: req.body.username, client_id});
     }
 
     req.session.username = username;
     if (!allUsers[username]) {
         allUsers[username] = { username, fullname: username.toUpperCase() };
     }
-    resp.send({accessCode, user: allUsers[username]});
+    resp.send({code, user: allUsers[username]});
+});
+
+app.get("/oauth2/login", (req, res) => {
+    const {client_id, redirect_uri, state} = req.query;
+
+    const client = clientRepository.get(client_id);
+    if (!client) {
+        return res.status(400).send("Unknown client_id");
+    }
+    if (client.redirectUris.indexOf(redirect_uri) === -1) {
+        return res.status(400).send("Unknown redirect_uri");
+    }
+
+    if (req.session.username) {
+        const code = encode({username: req.session.username, client_id});
+        return res.redirect(redirect_uri + "?" + qs.stringify({code, state}))
+    } else {
+        return res.redirect("/?" + qs.stringify({client_id, redirect_uri, state}));
+    }
 });
 
 app.post("/oauth2/token", (req, res) => {

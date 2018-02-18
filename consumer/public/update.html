@@ -38,9 +38,11 @@
     function fetchProfile() {
         jQuery.getJSON("/api/consumer/me").then(user => {
             $("#fullname").val(user.fullname);
+        }).fail(err => {
+            if (err.status == 401) {
+                window.location = "/login";
+            }
         });
-
-        // what if this (logically) returns 401?
         // Service to service API calls
     }
 

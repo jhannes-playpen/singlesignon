@@ -11,8 +11,11 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.17.1",
+    "cookie-parser": "^1.4.3",
     "express": "^4.16.2",
-    "express-session": "^1.15.6"
+    "express-session": "^1.15.6",
+    "qs": "^6.5.1",
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "nodemon": "^1.15.0"

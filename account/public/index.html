@@ -17,6 +17,8 @@
         <button>Log in</button>
     </form>
 
+    <!-- TODO: Use id.html -->
+
     <form id="editProfile" style="display: none">
         <h3>Update profile</h3>
 
@@ -67,11 +69,11 @@
         jQuery.ajax("/loginSession", {
             type: "POST", contentType: "application/json", data: JSON.stringify(data)
         }).then(res => {
-            const {accessCode, user} = res;
+            const {code, user} = res;
             localStorage.setItem("logged_in", user);
             const redirect = qs.parse(window.location.href)["redirect_uri"];
             if (redirect) {
-                window.location = redirect + "?" + qs.stringify({accessCode});
+                window.location = redirect + "?" + qs.stringify({code});
             } else {
                 $("#login").trigger("reset");
                 fetchUsername();
