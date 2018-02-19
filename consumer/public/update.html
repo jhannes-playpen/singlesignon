@@ -20,7 +20,7 @@
 
     <iframe id="ssoFrame" hidden="hidden"></iframe>
 
-    <script src="config.js"></script>
+    <script src="/config.js"></script>
     <script
     src="http://code.jquery.com/jquery-3.3.1.js"
     integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
@@ -29,6 +29,7 @@
     window.addEventListener("message", (e) => {
         if (e.data.unauthorized) {
             console.log("unauthorized");
+            $("#loggedInUser").hide();
             $("#login").show();
             jQuery.ajax("/logout", { type: 'POST' });
         } else {
