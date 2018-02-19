@@ -68,7 +68,7 @@ app.get("/token", (req, res) => {
         client_id,
         client_secret
     }).then(resp => {
-        req.session.destroy();
+        req.session.regenerate(err => {});
         req.session.access_token = resp.data.access_token;
         res.clearCookie('oauth2_state');
         res.clearCookie('redirect_after_login');

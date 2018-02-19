@@ -18,6 +18,7 @@ try {
         login_url: "http://account.local:3000"
     };
 }
+const {login_url} = settings;
 const sso_frame_url = `${login_url}/id.html?origin=other`;
 
 app.get("/config.js", (req, res) => {
