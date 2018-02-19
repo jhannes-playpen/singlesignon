@@ -20,11 +20,22 @@ app.use(cookieParser());
 app.use(express.static(__dirname + '/public'));
 app.use(session({secret: "sdgknsdlgndg", cookie: {}, resave: false, saveUninitialized: false}));
 
-const login_url = "http://account.local:3000";
-const redirect_uri = "http://consumer.local:4000/token";
-const client_id = "c622ed63-30b6-4a77-b6af-71fefa4b5f64";
-const client_secret = "a0071e49-d6ef-4748-8abd-bf2fd45c6ab5";
-const sso_frame_url = `${login_url}/id.html?origin=consumer`;
+let settings;
+try {
+    settings = require("./settings." + process.env.PROFILE);
+    console.log("read config for " + process.env.PROFILE);
+} catch (ex) {
+    settings = {
+        login_url: "http://account.local:3000",
+        redirect_uri: "http://consumer.local:4000/token",
+        client_id: "c622ed63-30b6-4a77-b6af-71fefa4b5f64",
+        client_secret: "a0071e49-d6ef-4748-8abd-bf2fd45c6ab5",
+    };
+    console.log("using default profile");
+}
+
+const {login_url, redirect_uri, client_id, client_secret} = settings;
+const sso_frame_url = `${login_url}/id.html?origin=consumer`
 
 app.get("/config.js", (req, res) => {
     res.setHeader('content-type', 'text/javascript');

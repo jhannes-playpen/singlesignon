@@ -143,6 +143,8 @@ app.delete("/loginSession", (req, resp) => {
     resp.sendStatus(200);
 });
 
+console.log(process.env);
+
 app.listen(3000, function() {
-    console.log("Server started");
+    console.log("Server started on port " + 3000);
 });

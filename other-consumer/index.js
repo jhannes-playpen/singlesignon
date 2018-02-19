@@ -10,7 +10,14 @@ app.use(express.static(__dirname + '/public'));
 app.use(session({secret: "sdgknsdlsdgsggndg", cookie: {}, resave: false, saveUninitialized: false}));
 
 
-const login_url = "http://account.local:3000";
+let settings;
+try {
+    settings = require("./settings." + process.env.PROFILE);
+} catch (ex) {
+    settings = {
+        login_url: "http://account.local:3000"
+    };
+}
 const sso_frame_url = `${login_url}/id.html?origin=other`;
 
 app.get("/config.js", (req, res) => {

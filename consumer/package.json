@@ -5,6 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
+    "docker:login": "az acr login --name ssojhannestest98a0",
+    "docker:build-local": "docker build -t sso-consumer .",
+    "docker:build": "docker build -t ssojhannestest98a0.azurecr.io/sso-consumer .",
+    "docker:push": "docker push ssojhannestest98a0.azurecr.io/sso-consumer",
+    "azure:setup": "az webapp config container set --name sso-jhannes-consumer --resource-group sso-jhannes --docker-registry-server-url https://ssojhannestest98a0.azurecr.io --docker-custom-image-name ssojhannestest98a0.azurecr.io/sso-consumer:latest",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

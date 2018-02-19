@@ -39,11 +39,11 @@ The `id.html` page has a whitelist of SSO partners to avoid leaking information 
 TODO
 ----
 
-
-* Single Sign OUT: Invalidate issued access_tokens (requires shared state!) - all access_tokens should reference same underlying session
-* Add 15 minute session timer - requires all access_tokens in same session to be associated
-* Automated tests (what framework to use?)
-* Refactor and increase validation code
-* Reduce use of session - encrypt cookie
-* Encrypt code and access_token
-* Use a real user database (Mongo?) with hashed passwords
+[x] Deployment to cloud using Docker and Azure Web Apps
+[ ] Single Sign OUT: Invalidate issued access_tokens (requires shared state!) - all access_tokens should reference same underlying session
+[ ] Add 15 minute session timer - requires all access_tokens in same session to be associated
+[ ] Automated tests (what framework to use?)
+[ ] Refactor and increase validation code
+[ ] Reduce use of session - encrypt cookie
+[ ] Encrypt code and access_token
+[ ] Use a real user database (Mongo?) with hashed passwords
